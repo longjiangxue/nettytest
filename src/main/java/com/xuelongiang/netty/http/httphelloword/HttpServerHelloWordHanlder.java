@@ -12,7 +12,12 @@ import io.netty.handler.codec.http.*;
 public class HttpServerHelloWordHanlder extends SimpleChannelInboundHandler<HttpObject> {
 
 
-    private String content = "hello word";
+    private String content = "<html>" +
+            "<header></header>" +
+            "<body>" +
+            "<h1>hello word</h1>" +
+            "</body>" +
+            "</html>";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONNECTION = "Connection";
@@ -22,25 +27,26 @@ public class HttpServerHelloWordHanlder extends SimpleChannelInboundHandler<Http
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        if(msg instanceof HttpRequest){
+       if(msg instanceof HttpRequest){
+           HttpRequest req = (HttpRequest)msg;
 
-            HttpRequest req = (HttpRequest)msg;
+           FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                   HttpResponseStatus.OK, Unpooled.wrappedBuffer(content.getBytes()));
 
-            boolean keepAlive = HttpHeaderUtil.isKeepAlive(req);
+           response.headers().set(CONTENT_TYPE, "text/html");
+           response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
 
-            FullHttpResponse response =  new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                    HttpResponseStatus.OK, Unpooled.wrappedBuffer(content.getBytes()));
-            response.headers().set(CONTENT_TYPE, "text/plain");
-            response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
+           boolean keppAlive = HttpHeaderUtil.isKeepAlive(req);
+           System.out.println("http 请求");
+           if(!keppAlive){
 
-            if(!keepAlive){
-                ctx.write(response).addListener(ChannelFutureListener.CLOSE);
-            }else{
+               ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+
+           }else {
                 response.headers().set(CONNECTION, KEEP_ALIVE);
                 ctx.write(response);
-            }
-        }
-
+           }
+       }
     }
 
     @Override

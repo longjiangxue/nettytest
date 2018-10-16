@@ -16,7 +16,7 @@ public class HttpHelloWordServer {
     public static void main(String[] args) {
 
 
-
+        // 服务端模版代码
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup work = new NioEventLoopGroup();
 
@@ -29,10 +29,11 @@ public class HttpHelloWordServer {
 
                  @Override
                  protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline =  ch.pipeline();
-                        pipeline.addLast(new HttpServerCodec());
-                        // pipeline.addLast();
-                        pipeline.addLast(new HttpServerHelloWordHanlder());
+                     ChannelPipeline pipeline =  ch.pipeline();
+                     pipeline.addLast(new HttpServerCodec());
+                     // pipeline.addLast();
+                     //添加 hello word 处理器
+                     pipeline.addLast(new HttpServerHelloWordHanlder());
                  }
              });
 
